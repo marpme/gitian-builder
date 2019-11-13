@@ -120,8 +120,11 @@ EOF" if build_desc["sudo"] and @options[:allow_sudo]
       system! "on-target -u root bash < target-bin/upgrade-system.sh >> var/install.log 2>&1"
   end
   info "Creating package manifest"
-  system! "on-target -u root bash < target-bin/grab-packages.sh > var/base-#{suitearch}.manifest"
-
+  if ENV["CI"]
+    system! "on-target -u root bash < target-bin/grab-packages.sh 2>&1 | tee var/base-#{suitearch}.manifest"
+  else
+    system! "on-target -u root bash < target-bin/grab-packages.sh > var/base-#{suitearch}.manifest"
+  
   info "Creating build script (var/build-script)"
 
   File.open("var/build-script", "w") do |script|
